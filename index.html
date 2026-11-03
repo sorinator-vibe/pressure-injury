@@ -63,7 +63,7 @@ button{font:inherit;color:inherit}
 /* Brand / navigation */
 .brand{position:absolute;top:20px;left:20px;padding:16px 18px 14px;width:min(620px,calc(100vw - 440px));display:flex;flex-direction:column;gap:12px;z-index:3}
 .brand h1{margin:0;font-size:22px;line-height:1.15;letter-spacing:-.015em;font-weight:650}
-.brand p{margin:0;color:var(--ink-2);font-size:13px;line-height:1.4;}
+.brand p{margin:0;color:var(--ink-2);font-size:13px;line-height:1.4;min-height:2.8em}
 .brand .titlerow{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .brand .titlerow .chip{flex:none}
 .brand .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -202,6 +202,19 @@ dialog::backdrop{background:rgba(10,12,14,.35);-webkit-backdrop-filter:blur(4px)
 .sheet-top .lede{margin:0 0 12px;font-size:14px}
 .notes-tabs button{white-space:normal;min-height:40px;line-height:1.2}
 .ntab[hidden]{display:none}
+/* simulator sub-tabs and scroll affordance */
+body.m-sim .inspector .scroll, body.m-sim .big-side .scroll{display:flex;flex-direction:column}
+body.m-sim #readout{order:2;border-top:1px solid var(--hair);margin-top:6px}
+body.m-sim .pane[data-pane="sim"]{order:1;border-top:0;margin-top:0;padding-top:12px}
+.simhint{font-size:13px;color:var(--ink-2);margin:0 0 10px}
+.simtabs{margin-bottom:14px}
+.simtabs small{font-size:11px;font-weight:600;color:var(--go);margin-left:3px}
+.group[hidden]{display:none}
+.inspector .scroll{-webkit-mask-image:none;mask-image:none}
+.inspector .scroll.more{-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 56px),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - 56px),transparent)}
+.morebtn{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);z-index:2;border:0;border-radius:999px;padding:6px 12px 6px 10px;font-size:12px;font-weight:600;color:var(--accent);background:var(--solid);box-shadow:0 0 0 1px var(--hair),0 4px 14px -6px rgba(0,0,0,.3);cursor:pointer;display:flex;align-items:center;gap:5px;transition:opacity .2s}
+.morebtn svg{width:12px;height:12px}
+.morebtn[hidden]{display:none}
 /* tissue toolbar */
 .ttool .row2{display:flex;gap:5px}
 .ttool .seg button{padding:0 8px;font-size:12px}
@@ -339,13 +352,13 @@ body.m-stages #readout, body.m-roi #readout{display:none}
     <button type="button" class="chip" id="notesBtn" aria-haspopup="dialog">Background</button>
   </div>
   <div>
-    <p>How hours of unrelieved weight on the sacrum turn into a wound, what each stage looks like, and what sensing and robotic aids are worth.</p>
+    <p id="modeHint">Step through how hours of unrelieved weight on the sacrum turn into a wound.</p>
   </div>
   <div class="row">
     <div class="seg" role="group" aria-label="View">
       <button type="button" data-mode="story" aria-pressed="true">How it forms</button>
       <button type="button" data-mode="stages" aria-pressed="false">Stages</button>
-      <button type="button" data-mode="sim" aria-pressed="false">Simulator</button>
+      <button type="button" data-mode="sim" aria-pressed="false">Simulate care</button>
       <button type="button" data-mode="roi" aria-pressed="false">Costs and ROI</button>
     </div>
     <button type="button" class="chip" id="xray" aria-pressed="false">See through body</button>
@@ -430,7 +443,14 @@ body.m-stages #readout, body.m-roi #readout{display:none}
         <p class="note" id="vN"></p>
       </div>
 
-      <div class="group">
+      <p class="simhint">Change any setting below. The 14-day outcome above and the chart update instantly.</p>
+      <div class="seg wide simtabs" role="tablist" aria-label="What to change">
+        <button type="button" role="tab" data-stab="aids" aria-pressed="true" aria-selected="true">Aids <small id="aidCount"></small></button>
+        <button type="button" role="tab" data-stab="care" aria-pressed="false" aria-selected="false">Care plan</button>
+        <button type="button" role="tab" data-stab="patient" aria-pressed="false" aria-selected="false">Patient</button>
+      </div>
+
+      <div class="group" data-sgroup="aids" role="tabpanel">
         <h3>Robotic and sensing aids</h3>
         <div class="card">
           <div class="aid"><div class="top"><span class="t">Wearable turn sensor</span><label class="sw"><input type="checkbox" data-k="sensor" aria-label="Wearable turn sensor"><span></span></label></div>
@@ -444,7 +464,7 @@ body.m-stages #readout, body.m-roi #readout{display:none}
         </div>
       </div>
 
-      <div class="group">
+      <div class="group" data-sgroup="care" role="tabpanel" hidden>
         <h3>Care plan</h3>
         <div class="card">
           <div class="ctl stack"><div class="top"><label for="hob">Head of bed</label><span class="v" id="hobV">45°</span></div><input type="range" id="hob" min="0" max="60" step="5" value="45"></div>
@@ -455,7 +475,7 @@ body.m-stages #readout, body.m-roi #readout{display:none}
         </div>
       </div>
 
-      <div class="group">
+      <div class="group" data-sgroup="patient" role="tabpanel" hidden>
         <h3>Patient</h3>
         <div class="card">
           <div class="ctl"><label>Build</label><div class="seg" role="group" aria-label="Build" data-k="build"><button type="button" data-v="thin" aria-pressed="true">Thin</button><button type="button" data-v="average" aria-pressed="false">Average</button><button type="button" data-v="heavy" aria-pressed="false">Heavy</button></div></div>
@@ -468,6 +488,7 @@ body.m-stages #readout, body.m-roi #readout{display:none}
       <p class="chapter src" style="font-size:12px;color:var(--ink-3);margin:0">An illustrative model built from published mechanisms and trial results. It is a teaching aid, not a clinical risk tool.</p>
     </section>
   </div>
+  <button type="button" class="morebtn" id="moreBtn" hidden aria-label="Scroll to see more options"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>More below</button>
 </aside>
 
 <footer class="transport glass" aria-label="Timeline">
@@ -1598,12 +1619,12 @@ const CH = [
    src:'StatPearls; NPIAP deep tissue injury white paper.'},
   {t:()=>{const i=R.stage.findIndex(s=>s>=0.5); return i<0?2880:R.t[i]+720;}, cam:'pelvis', xray:true, tv:'anatomy', title:'Hidden damage, normal-looking skin',
    body:'By now a cone of dead muscle sits on the sacrum, wide at the bone and narrow toward the skin. Fluid leaks into the tissue. A sub-epidermal moisture scanner reads this edema about 4 mm below intact skin, a median of 5 days before damage is visible.',
-   src:'Bruin Biometrics; Osborne Chambers 2024; Avsar 2024. Turn on the moisture scan in the simulator to see what it changes.'},
+   src:'Bruin Biometrics; Osborne Chambers 2024; Avsar 2024. Turn on the moisture scan in Simulate care to see what it changes.'},
   {t:()=>{const t=firstStage(R,2); return t===null?7*1440:t+360;}, cam:'pelvis', xray:true, tv:'anatomy', title:'The skin breaks last',
    body:'The surface finally opens. Because damage started deep, the wound is an inverted cone: what you see at the skin is the narrow tip of a much larger injury. Moisture from incontinence has softened the skin and hastened the break.',
    src:'Medscape: by the time ulceration reaches the skin, significant muscle damage has already occurred.'},
   {t:()=>{const t=firstStage(R,4); return t===null?12*1440:t+240;}, cam:'pelvis', xray:true, tv:'anatomy', title:'Stage 4: the bone is exposed',
-   body:'Fascia and muscle are gone; slough covers part of the sacrum and the rim is undermined. One hospital-acquired Stage 4 case averages $129,248 in a single admission, and Medicare pays nothing for it. Open the simulator to see which aids would have changed this curve.',
+   body:'Fascia and muscle are gone; slough covers part of the sacrum and the rim is undermined. One hospital-acquired Stage 4 case averages $129,248 in a single admission, and Medicare pays nothing for it. Open Simulate care to see which aids would have changed this curve.',
    src:'Brem 2010; Padula 2019; CMS hospital-acquired conditions policy.'},
 ];
 
@@ -1621,8 +1642,14 @@ $$('input[type=checkbox][data-k]').forEach(i=>i.addEventListener('change', ()=>{
 $('#hob').addEventListener('input', e=>{ S.hob=+e.target.value; $('#hobV').textContent=S.hob+'°'; user={...S}; schedule(); });
 $('#comp').addEventListener('input', e=>{ S.compliance=+e.target.value/100; $('#compV').textContent=e.target.value+'%'; user={...S}; schedule(); });
 
+const MODE_HINT = {
+  story:'Step through how hours of unrelieved weight on the sacrum turn into a wound.',
+  stages:'Compare all six stages: what shows on the skin, what lies beneath, and what each costs.',
+  sim:'Try your own scenario: switch aids on or off, change the care plan or the patient, and watch the 14-day outcome.',
+  roi:'Estimate what a prevention program saves at your facility. Every number is editable.',
+};
 function setMode(m){
-  mode = m; document.body.className = 'm-'+m;
+  mode = m; document.body.className = 'm-'+m; $('#modeHint').textContent = MODE_HINT[m];
   $$('[data-mode]').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.mode===m)));
   $$('.pane').forEach(p=>p.hidden = p.dataset.pane!==m); $('.inspector .scroll').scrollTop = 0;
   if (m==='story'){ stageView='live'; S = {...STORY}; recompute(); goChapter(chapter); return; }
@@ -1652,12 +1679,12 @@ function goChapter(i){
   $('#chN').textContent = `${chapter+1} of ${CH.length}`; $('#chT').textContent = c.title; $('#chB').textContent = c.body; $('#chS').textContent = c.src;
   dots.querySelectorAll('button').forEach((b,k)=>b.setAttribute('aria-current', String(k===chapter)));
   $('#chPrev').disabled = chapter===0;
-  $('#chNext').textContent = chapter===CH.length-1 ? 'Open the simulator' : 'Next';
+  $('#chNext').textContent = chapter===CH.length-1 ? 'Try aids in Simulate care' : 'Next';
   simMin = clamp(c.t(), 0, TOTAL); playing = false; updatePlay();
   flyTo(c.cam); setXray(c.xray); setTView(c.tv);
 }
 $('#chPrev').addEventListener('click', ()=>goChapter(chapter-1));
-$('#chNext').addEventListener('click', ()=>{ if (chapter===CH.length-1){ user = {...SIM_DEFAULT}; setMode('sim'); toast('Simulator opened with the same patient, plus a turn sensor, automated turning and an actuator grid mattress'); } else goChapter(chapter+1); });
+$('#chNext').addEventListener('click', ()=>{ if (chapter===CH.length-1){ user = {...SIM_DEFAULT}; setMode('sim'); toast('Simulate care opened with the same patient, plus a turn sensor, automated turning and an actuator grid mattress'); } else goChapter(chapter+1); });
 
 function updatePlay(){ $('#play').setAttribute('aria-label', playing?'Pause':'Play'); $('#playIcon').setAttribute('d', playing ? 'M5 3.5h3.6v13H5zM11.4 3.5H15v13h-3.6z' : 'M5 3.5v13l11-6.5z'); }
 $('#play').addEventListener('click', ()=>{ if (simMin >= TOTAL-1) simMin = 0; playing=!playing; updatePlay(); });
@@ -1811,12 +1838,31 @@ function calcROI(){
     <div class="legend2">${['Stage 1','Stage 2','Stage 3','Stage 4','Unstageable'].map((t,i)=>`<span><i style="background:${STAGECOL[i]}"></i>${t}</span>`).join('')}<span><i style="background:var(--ink-3)"></i>Aid cost</span></div>`;
   const stA = R ? Math.max(...R.stage) : 0, stB = RB ? Math.max(...RB.stage) : 0;
   const nm = st => st>=1 ? `Stage ${Math.floor(st)}` : (st>0 ? 'hidden damage only' : 'no injury');
-  $('#rSim').textContent = `The patient in the simulator reaches ${nm(stB)} without aids, about ${money(stageCost(stB),cur)} to treat. With the aids chosen there, ${nm(stA)}, about ${money(stageCost(stA),cur)}.`;
+  $('#rSim').textContent = `The patient in Simulate care reaches ${nm(stB)} without aids, about ${money(stageCost(stB),cur)} to treat. With the aids chosen there, ${nm(stA)}, about ${money(stageCost(stA),cur)}.`;
 }
 $('#rN').addEventListener('input', e=>{ roi.N=+e.target.value; $('#rNV').textContent=roi.N.toLocaleString('en-US'); calcROI(); });
 $('#rInc').addEventListener('input', e=>{ roi.inc=+e.target.value; $('#rIncV').textContent=roi.inc.toFixed(1)+'%'; calcROI(); });
 $('#rPreset').addEventListener('click', e=>{ const b=e.target.closest('button'); if(!b) return; roi.preset=b.dataset.v; roi.costs=COSTS[roi.preset].c.slice(); setPressed($('#rPreset'), roi.preset); buildROI(); calcROI(); });
 buildROI();
+
+// ------------------------------------------------------------------ simulator sub-tabs and scroll affordance
+function setSimTab(k){
+  $$('[data-stab]').forEach(b=>{ const on=b.dataset.stab===k; b.setAttribute('aria-pressed',String(on)); b.setAttribute('aria-selected',String(on)); });
+  $$('[data-sgroup]').forEach(g=>g.hidden = g.dataset.sgroup!==k); updateMore();
+}
+$$('[data-stab]').forEach(b=>b.addEventListener('click',()=>setSimTab(b.dataset.stab)));
+function updateAidCount(){ const n=['sensor','autoTurn','ap','sem'].filter(k=>S[k]).length; $('#aidCount').textContent = n ? `${n} on` : ''; }
+const moreBtn = $('#moreBtn');
+function updateMore(){
+  const el = scrollEl; const below = el.scrollHeight - el.scrollTop - el.clientHeight > 24;
+  const show = below && big.hidden && el.parentNode.classList.contains('inspector') && innerWidth > 960;
+  el.classList.toggle('more', below && big.hidden);
+  moreBtn.hidden = !show;
+}
+scrollEl.addEventListener('scroll', updateMore, {passive:true});
+addEventListener('resize', updateMore);
+setInterval(()=>{ updateMore(); updateAidCount(); }, 400);
+moreBtn.addEventListener('click', ()=>scrollEl.scrollBy({top: scrollEl.clientHeight*0.7, behavior: reduceMotion?'auto':'smooth'}));
 
 // ------------------------------------------------------------------ notes tabs
 $$('[data-ntab]').forEach(b=>b.addEventListener('click',()=>{ const k=b.dataset.ntab;
