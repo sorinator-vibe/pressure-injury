@@ -1359,11 +1359,11 @@ let goal = null;
 // Tip: orbit or zoom with the mouse, then press C to show the current numbers.
 // ---------------------------------------------------------------------------
 const CAMERA = {
-  overview: {distance:4.3,  azimuth:0,    elevation:30, target:[0.00, 0.48, 0.00]},   // full bed from the patient's left
+  overview: {distance:4.3,  azimuth:0,    elevation:30, target:[0.00, 0.48, 0.00]},   // full bed from the patient's left; default, story chapter 1, Simulate care, Costs and ROI
   stages:   {distance:2.68, azimuth:-68,  elevation:22, target:[0.16, 0.76, 0.00]},   // left-foot corner, head toward the top
-  pelvis:   {distance:1.55, azimuth:54,   elevation:54, target:[-0.02, 0.66, 0.00]},
-  side:     {distance:2.9,  azimuth:1,    elevation:14, target:[0.05, 0.82, 0.00]},
-  foot:     {distance:3.1,  azimuth:-73,  elevation:24, target:[-0.10, 0.72, 0.00]},
+  pelvis:   {distance:3.0,  azimuth:-35,  elevation:40, target:[0.05, 0.68, 0.00]},   // close-up of the pelvis from the patient's left; used by story chapters 3, 5, 6 and 7
+  side:     {distance:2.9,  azimuth:1,    elevation:14, target:[0.05, 0.82, 0.00]},   // story chapter 2: eye-level, to show sliding and shear
+  foot:     {distance:3.1,  azimuth:-73,  elevation:24, target:[-0.10, 0.72, 0.00]},   // story chapter 4: from the foot end, to show the turn
 };
 const D2R = Math.PI/180;
 const PRESETS = Object.fromEntries(Object.entries(CAMERA).map(([k,c])=>[k,{target:V(...c.target), dist:c.distance, az:c.azimuth*D2R, pol:(90-c.elevation)*D2R}]));
