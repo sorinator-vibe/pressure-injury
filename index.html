@@ -207,6 +207,11 @@ dialog::backdrop{background:rgba(10,12,14,.35);-webkit-backdrop-filter:blur(4px)
 .ttool .seg button{padding:0 8px;font-size:12px}
 .ttool .chip{padding:0 9px;font-size:12px}
 .big #expand{display:none}
+.ttool .chip.dim{opacity:.55}
+.ttool .chip.tinted{display:inline-flex;align-items:center;gap:5px;color:var(--accent);background:color-mix(in srgb, var(--accent) 14%, var(--solid));box-shadow:0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent);font-weight:600}
+.ttool .chip.tinted svg{width:13px;height:13px;flex:none}
+.ttool .chip.tinted:hover{background:color-mix(in srgb, var(--accent) 22%, var(--solid))}
+.tissue:not(.big .tissue) canvas{cursor:grab}
 .ttool .chip{background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 /* building indicator */
 .building{position:fixed;left:50%;bottom:170px;transform:translateX(-50%);z-index:4;display:flex;gap:10px;align-items:center;padding:10px 16px;font-size:13px;font-weight:550;border-radius:14px}
@@ -250,24 +255,28 @@ dialog::backdrop{background:rgba(10,12,14,.35);-webkit-backdrop-filter:blur(4px)
 .aidrow.off .two{opacity:.45}
 .simcost{font-size:13px;margin:10px 0}
 body.m-stages .transport, body.m-roi .transport{display:none}
-body.m-stages .inspector #readout, body.m-roi .inspector #readout{display:none}
+body.m-stages #readout, body.m-roi #readout{display:none}
 /* expanded tissue */
 .big{position:fixed;inset:0;z-index:10;background:rgba(10,12,14,.38);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:flex;padding:24px}
 .big[hidden]{display:none}
 .big-card{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--solid)}
 .big-head{display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid var(--hair);flex-wrap:wrap}
 .big-head h2{font-size:19px;margin:0;letter-spacing:-.01em;flex:1;min-width:160px}
-.big-body{flex:1;display:grid;grid-template-columns:1fr 300px;min-height:0}
+.big-body{flex:1;display:grid;grid-template-columns:1fr 390px;min-height:0}
 .big-slot{position:relative;min-height:0}
 .big-slot .tissue{position:absolute;inset:12px;height:auto;margin:0}
 .big-side{border-left:1px solid var(--hair);padding:16px 18px;overflow:auto}
+.big-side .scroll{overflow:visible;padding:0}
+.big-card-stage{background:var(--fill);border-radius:var(--r-group);padding:12px 14px;margin-bottom:4px}
+.big-card-stage[hidden]{display:none}
+.big-card-stage .stage-desc{margin-bottom:0}
 .big-side h3{font-size:13px;color:var(--ink-2);margin:18px 0 8px;font-weight:600}
 .layertoggles{display:flex;flex-wrap:wrap;gap:6px}
 .key{list-style:none;padding:0;margin:0;font-size:13px}
 .key li{display:flex;gap:8px;align-items:flex-start;margin:7px 0;line-height:1.35}
 .key i{flex:none;width:22px;height:12px;border-radius:3px;margin-top:3px}
 .big .tissue .tl{font-size:13px}
-@media (max-width: 960px){ .big{padding:0} .big-body{grid-template-columns:1fr;grid-template-rows:1fr auto} .big-side{border-left:0;border-top:1px solid var(--hair);max-height:34vh} }
+@media (max-width: 960px){ .big{padding:0} .big-body{grid-template-columns:1fr;grid-template-rows:1fr auto} .big-side{border-left:0;border-top:1px solid var(--hair);max-height:42vh} }
 @media (max-width: 1100px){ .brand{width:min(430px,calc(100vw - 420px))} .brand h1{font-size:19px} }
 @media (max-width: 960px){
   body{overflow:auto;display:flex;flex-direction:column}
@@ -304,8 +313,11 @@ body.m-stages .inspector #readout, body.m-roi .inspector #readout{display:none}
     <div class="big-body">
       <div class="big-slot" id="bigSlot"></div>
       <aside class="big-side">
-        <p class="stage-name" id="bigName"></p>
-        <p class="stage-desc" id="bigDesc"></p>
+        <div class="big-card-stage" id="bigStageCard">
+          <p class="stage-name" id="bigName"></p>
+          <p class="stage-desc" id="bigDesc"></p>
+        </div>
+        <div id="bigScrollSlot"></div>
         <h3>Layers</h3>
         <div class="layertoggles" id="layerToggles"></div>
         <h3>Color key</h3>
@@ -351,7 +363,7 @@ body.m-stages .inspector #readout, body.m-roi .inspector #readout{display:none}
         <button type="button" data-tview="strain" aria-pressed="false">Strain</button>
         <button type="button" data-tview="split" aria-pressed="false">Layers</button>
       </div>
-      <div class="row2"><button type="button" class="chip" id="bioprint" disabled title="Available once the skin is open">Bioprint</button><button type="button" class="chip" id="expand" aria-label="Expand the sacrum view">Expand</button></div>
+      <div class="row2"><button type="button" class="chip" id="bioprint" title="Preview a robot printing new tissue into the wound. Needs an open wound (Stage 2 or later).">Bioprint</button><button type="button" class="chip tinted" id="expand" aria-label="Expand the sacrum view" title="Open a larger view (or double-click the cutaway)"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.5 2.5h4v4M13.5 2.5 9 7M6.5 13.5h-4v-4M2.5 13.5 7 9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Expand</button></div>
     </div>
   </div>
   <div class="scroll">
@@ -1032,7 +1044,8 @@ const col = h => new THREE.Color(h);
 
 // ------------------------------------------------------------------ state
 const STORY = {tone:'medium',build:'thin',surface:'foam',hob:45,turnEvery:2,compliance:0.54,nutrition:'poor',moisture:true,older:true,heelFloat:false,sensor:false,autoTurn:false,ap:false,sem:false,seed:7};
-let user = {...STORY};
+const SIM_DEFAULT = {...STORY, sensor:true, autoTurn:true, ap:true};
+let user = {...SIM_DEFAULT};
 let S = {...STORY};
 let mode = 'story';
 let R = null, RB = null;
@@ -1312,14 +1325,30 @@ function updateCells(c, tm){
 
 // ---- camera control
 // Default: full bed, from the patient's left side (+z), 30° above horizontal
-const cam = {target:V(0,.48,0), dist:4.3, az:0, pol:Math.PI/3};
+const cam = {target:V(0,.48,0), dist:4.3, az:0, pol:Math.PI/3}; // replaced by CAMERA.overview below
 let goal = null;
-const PRESETS = {
-  overview:{target:V(0,.48,0), dist:4.3, az:0, pol:Math.PI/3},
-  pelvis:{target:V(-.02,.66,0), dist:1.55, az:.95, pol:.62},
-  side:{target:V(.05,.82,0), dist:2.9, az:.02, pol:1.32},
-  foot:{target:V(-.1,.72,0), dist:3.1, az:-1.28, pol:1.16},
+// ---------------------------------------------------------------------------
+// CAMERA VIEWS — edit these numbers to adjust each view.
+//   distance  : meters from the target point. Smaller = more zoomed in.
+//   azimuth   : degrees around the bed. 0 = patient's left side, -90 = foot end,
+//               +90 = head end, 180 = patient's right side.
+//   elevation : degrees above horizontal. 0 = eye level with the mattress, 90 = straight down.
+//   target    : [x, y, z] point the camera looks at, in meters.
+//               x: + toward the head, - toward the feet; y: height (mattress top is about 0.64); z: + patient's left.
+// Tip: orbit or zoom with the mouse, then press C to show the current numbers.
+// ---------------------------------------------------------------------------
+const CAMERA = {
+  overview: {distance:4.3,  azimuth:0,    elevation:30, target:[0.00, 0.48, 0.00]},   // full bed from the patient's left
+  stages:   {distance:2.68, azimuth:-68,  elevation:22, target:[0.16, 0.76, 0.00]},   // left-foot corner, head toward the top
+  pelvis:   {distance:1.55, azimuth:54,   elevation:54, target:[-0.02, 0.66, 0.00]},
+  side:     {distance:2.9,  azimuth:1,    elevation:14, target:[0.05, 0.82, 0.00]},
+  foot:     {distance:3.1,  azimuth:-73,  elevation:24, target:[-0.10, 0.72, 0.00]},
 };
+const D2R = Math.PI/180;
+const PRESETS = Object.fromEntries(Object.entries(CAMERA).map(([k,c])=>[k,{target:V(...c.target), dist:c.distance, az:c.azimuth*D2R, pol:(90-c.elevation)*D2R}]));
+function cameraNumbers(){ const f=n=>Math.round(n*100)/100; return `distance:${f(cam.dist)}, azimuth:${Math.round(cam.az/D2R)}, elevation:${Math.round(90-cam.pol/D2R)}, target:[${f(cam.target.x)}, ${f(cam.target.y)}, ${f(cam.target.z)}]`; }
+window.cameraNumbers = cameraNumbers;
+Object.assign(cam, {target:PRESETS.overview.target.clone(), dist:PRESETS.overview.dist, az:PRESETS.overview.az, pol:PRESETS.overview.pol});
 function flyTo(name){ const p = PRESETS[name]; goal = {target:p.target.clone(), dist:p.dist, az:p.az, pol:p.pol}; if (reduceMotion){ Object.assign(cam, {target:goal.target, dist:goal.dist, az:goal.az, pol:goal.pol}); goal=null; } }
 function stepCam(dt){
   if (goal){
@@ -1416,7 +1445,7 @@ LAYERS.forEach(Lr=>{
   m.customProgramCacheKey = ()=> 'tissue-layer';
   Lr.mat = m; Lr.group = add(tissue, new THREE.Group()); Lr.visible = true;
 });
-const fillMat = new THREE.MeshPhysicalMaterial({color:col('#F3D6C8'), roughness:.3, clearcoat:.6, transparent:true, opacity:.88, side:THREE.DoubleSide});
+const fillMat = new THREE.MeshPhysicalMaterial({color:col('#F29BB0'), roughness:.25, clearcoat:.8, transparent:true, opacity:.92, emissive:col('#5a1a2a'), emissiveIntensity:.25, side:THREE.DoubleSide});
 const fill = add(tissue, new THREE.Group());
 const eschar = add(tissue, new THREE.Group());
 const escharMat = new THREE.MeshStandardMaterial({color:col('#2B1B12'), roughness:.95, side:THREE.DoubleSide});
@@ -1428,7 +1457,7 @@ function setArrow(a, len){ len=Math.max(.01,len); a.userData.shaft.scale.y=len; 
 const aDown = add(ts, arrow('#3B6FB6')), aUp = add(ts, arrow('#6B6F75')), aShS = add(ts, arrow('#C9821E')), aShB = add(ts, arrow('#6B6F75'));
 aDown.rotation.z = Math.PI; aShS.rotation.z = -Math.PI/2; aShB.rotation.z = Math.PI/2;
 // bioprinting nozzle (Rams: white body, aluminum tip, one light)
-const nozzle = add(ts, new THREE.Group()); nozzle.visible = false;
+const nozzle = add(ts, new THREE.Group()); nozzle.visible = false; nozzle.scale.setScalar(1.5);
 add(nozzle, new THREE.Mesh(new THREE.CylinderGeometry(.9,.9,4,32), M.shell)).position.y = 3.2;
 add(nozzle, new THREE.Mesh(new THREE.ConeGeometry(.55,1.4,32), M.alu)).rotation.x = Math.PI;
 nozzle.children[1].position.y = .5;
@@ -1503,7 +1532,7 @@ function buildTissue(D, comp, explode, moist, opt){
   if (opt.eschar && C.depth){ const R0 = C.rOpen*1.12+.3; const pts=[new THREE.Vector2(1e-4,.22)]; for(let k=0;k<=10;k++){ const t=k/10; pts.push(new THREE.Vector2(Math.max(1e-4,R0*Math.sin(t*Math.PI/2)), .22*Math.cos(t*Math.PI/2)+.02*Math.sin(t*23))); } pts.push(new THREE.Vector2(R0,-.12)); pts.push(new THREE.Vector2(1e-4,-.18));
     eschar.add(new THREE.Mesh(new THREE.LatheGeometry(pts, 96, PHI0, PHIL), escharMat)); }
   tBuilt.C = C; tBuilt.bounds = bounds; tBuilt.boneY = boneY; tBuilt.boneBottom = -bounds[4][1] - 4*explode*1.6;
-  $('#bioprint').disabled = !C.depth;
+  $('#bioprint').classList.toggle('dim', !C.depth);
 }
 let bio = {on:false, t:0};
 function buildFill(level){
@@ -1599,7 +1628,7 @@ function setMode(m){
   if (m==='story'){ stageView='live'; S = {...STORY}; recompute(); goChapter(chapter); return; }
   S = {...user}; syncControls(); recompute(); playing = false; updatePlay();
   if (m==='sim'){ stageView='live'; flyTo('overview'); setXray(false); setTView('anatomy'); }
-  if (m==='stages'){ if (stageView==='live') stageView = 1; renderStage(); flyTo('pelvis'); setXray(true); setTView('anatomy'); }
+  if (m==='stages'){ if (stageView==='live') stageView = 1; renderStage(); flyTo('stages'); setXray(true); setTView('anatomy'); }
   if (m==='roi'){ stageView='live'; calcROI(); flyTo('overview'); setXray(false); }
   resize();
 }
@@ -1611,7 +1640,10 @@ function setTView(v){
   tView = v; $$('[data-tview]').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.tview===v)));
 }
 $$('[data-tview]').forEach(b=>b.addEventListener('click', ()=>setTView(b.dataset.tview)));
-$('#bioprint').addEventListener('click', ()=>{ bio = {on:true, t:0}; playing=false; updatePlay(); toast('Preview of robotic in-situ bioprinting. Early clinical research, shown for illustration'); });
+$('#bioprint').addEventListener('click', ()=>{
+  if (!tBuilt.C || !tBuilt.C.depth){ toast(mode==='stages' ? 'Bioprinting fills an open wound. Pick Stage 2, 3 or 4 to see it.' : 'Bioprinting fills an open wound. It works once the skin breaks: play the timeline past Stage 2, or open Stages.'); return; }
+  if (big.hidden) openBig();
+  bio = {on:true, t:0}; playing=false; updatePlay(); toast('Preview of robotic in-situ bioprinting. Early clinical research, shown for illustration'); });
 
 const dots = $('#dots');
 CH.forEach((c,i)=>{ const b=document.createElement('button'); b.type='button'; b.setAttribute('aria-label', `Chapter ${i+1}: ${c.title}`); b.addEventListener('click',()=>goChapter(i)); dots.appendChild(b); });
@@ -1625,7 +1657,7 @@ function goChapter(i){
   flyTo(c.cam); setXray(c.xray); setTView(c.tv);
 }
 $('#chPrev').addEventListener('click', ()=>goChapter(chapter-1));
-$('#chNext').addEventListener('click', ()=>{ if (chapter===CH.length-1){ user = {...STORY, sensor:true, sem:true}; setMode('sim'); toast('Simulator opened with the same patient, plus a turn sensor and daily moisture scan'); } else goChapter(chapter+1); });
+$('#chNext').addEventListener('click', ()=>{ if (chapter===CH.length-1){ user = {...SIM_DEFAULT}; setMode('sim'); toast('Simulator opened with the same patient, plus a turn sensor, automated turning and an actuator grid mattress'); } else goChapter(chapter+1); });
 
 function updatePlay(){ $('#play').setAttribute('aria-label', playing?'Pause':'Play'); $('#playIcon').setAttribute('d', playing ? 'M5 3.5h3.6v13H5zM11.4 3.5H15v13h-3.6z' : 'M5 3.5v13l11-6.5z'); }
 $('#play').addEventListener('click', ()=>{ if (simMin >= TOTAL-1) simMin = 0; playing=!playing; updatePlay(); });
@@ -1634,6 +1666,7 @@ addEventListener('keydown', e=>{
   if (e.target.closest('input,dialog')) return;
   if (e.code==='Space'){ e.preventDefault(); $('#play').click(); }
   if (e.code==='ArrowRight'){ simMin = clamp(simMin+60*(e.shiftKey?24:1),0,TOTAL); }
+  if (e.code==='KeyC' && !e.metaKey && !e.ctrlKey){ const t = cameraNumbers(); console.log('Camera:', t); toast('Camera: '+t); }
   if (e.code==='ArrowLeft'){ simMin = clamp(simMin-60*(e.shiftKey?24:1),0,TOTAL); }
 });
 const notes = $('#notes');
@@ -1702,7 +1735,7 @@ function renderStage(){
 const big = $('#big'), bigSlot = $('#bigSlot'), tissueEl = $('.tissue'), scrollEl = $('.inspector .scroll');
 const bigStages = $('#bigStages');
 [['live','Live']].concat(SORDER.map(k=>[k, SDATA[k].tab])).forEach(([k,t])=>{ const b=document.createElement('button'); b.type='button'; b.dataset.v=k; b.textContent=t; bigStages.appendChild(b); });
-bigStages.addEventListener('click', e=>{ const b=e.target.closest('button'); if(!b) return; const v=b.dataset.v; stageView = (v==='live'||v==='dtpi'||v==='unst') ? v : +v; updateBigStages(); if (mode==='stages') renderStage(); });
+bigStages.addEventListener('click', e=>{ const b=e.target.closest('button'); if(!b) return; const v=b.dataset.v; stageView = (v==='live'||v==='dtpi'||v==='unst') ? v : +v; updateBigStages(); lastBigKey = null; if (mode==='stages') renderStage(); });
 function updateBigStages(){ setPressed(bigStages, stageView); }
 const lt = $('#layerToggles');
 LAYERS.forEach(Lr=>{ const b=document.createElement('button'); b.type='button'; b.className='chip'; b.setAttribute('aria-pressed','true'); b.textContent=Lr.name; b.addEventListener('click',()=>{ Lr.visible=!Lr.visible; Lr.group.visible=Lr.visible; b.setAttribute('aria-pressed', String(Lr.visible)); }); lt.appendChild(b); });
@@ -1710,18 +1743,21 @@ let lastBigKey = null;
 function updateBigInfo(tv){
   const key = stageView==='live' ? 'live'+tBuilt.D.toFixed(2) : stageView;
   if (key===lastBigKey) return; lastBigKey = key;
+  const card = $('#bigStageCard');
+  card.hidden = stageView==='live' ? mode!=='stages' : mode==='stages';
   if (stageView==='live'){ const st = STAGES[sampleAt(R, simMin).stage]; $('#bigName').textContent = st.n; $('#bigDesc').textContent = st.d + ' Showing the live simulation.'; }
-  else { $('#bigName').textContent = SDATA[stageView].name; $('#bigDesc').textContent = SDATA[stageView].def; }
+  else { $('#bigName').textContent = SDATA[stageView].name; $('#bigDesc').textContent = SDATA[stageView].def + (mode==='stages' ? '' : ' This is a reference view; the readings below come from the live simulation.'); }
 }
 function openBig(){
-  big.hidden = false; bigSlot.appendChild(tissueEl); tc.dist = 38; tc.target.set(-1.8,-4.4,1.3); updateBigStages(); lastBigKey=null; resize(); $('#bigClose').focus();
+  big.hidden = false; bigSlot.appendChild(tissueEl); $('#bigScrollSlot').appendChild(scrollEl); scrollEl.scrollTop = 0; tc.dist = 41; tc.target.set(-1.8,-3.7,1.3); updateBigStages(); lastBigKey=null; resize(); $('#bigClose').focus();
 }
 function closeBig(){
-  big.hidden = true; tissueEl.parentNode.removeChild(tissueEl); $('.inspector').insertBefore(tissueEl, scrollEl); tc.dist = 46; tc.target.set(-3.6,-4.4,2.6);
+  big.hidden = true; const insp = $('.inspector'); insp.appendChild(scrollEl); insp.insertBefore(tissueEl, scrollEl); tc.dist = 46; tc.target.set(-3.6,-4.4,2.6);
   if (mode!=='stages') stageView = 'live';
   resize(); $('#expand').focus();
 }
 $('#expand').addEventListener('click', openBig);
+tCanvas.addEventListener('dblclick', ()=>{ if (big.hidden) openBig(); });
 $('#bigClose').addEventListener('click', closeBig);
 addEventListener('keydown', e=>{ if (e.key==='Escape' && !big.hidden){ e.preventDefault(); closeBig(); } });
 
@@ -1853,7 +1889,7 @@ function frame(now){
   setArrow(aDown, lenD); aDown.position.set(0, lenD + 1.3, 0);
   setArrow(aUp, lenU); aUp.position.set(0, tBuilt.boneBottom - .25 - lenU - 1.05, 0);
   const shOn = shear > .02;
-  aShS.visible = aShB.visible = shOn; setArrow(aShS, 3*shear); setArrow(aShB, 3*shear);
+  aShS.visible = aShB.visible = shOn && !bio.on; aDown.visible = aUp.visible = !bio.on; setArrow(aShS, 3*shear); setArrow(aShB, 3*shear);
   aShS.position.set(-4, .6, TR+.8); aShB.position.set(4, bt-.6, TR+.8);
   // bioprint preview
   if (bio.on && tBuilt.C && tBuilt.C.depth){
@@ -1870,9 +1906,9 @@ function frame(now){
   const tw = tCanvas.clientWidth, th = tCanvas.clientHeight;
   const proj = (x,y,z)=>{ wp.set(x,y,z).project(tcam); return [(wp.x*.5+.5)*tw, (-wp.y*.5+.5)*th, wp.z]; };
   { let prev = -1e9; LAYERS.forEach(Lr=>{ const [x,y0] = proj(0, Lr.mid, TR+.3); const y = Math.max(y0, prev+19); prev = y; Lr.label.style.left = x+'px'; Lr.label.style.top = y+'px'; Lr.label.style.display = (tw>240 && Lr.group.visible) ? '' : 'none'; }); }
-  { const [x,y] = proj(0, lenD+1.6, 0); tlPress.style.left=(x+12)+'px'; tlPress.style.top=y+'px'; }
-  { const [x,y] = proj(0, tBuilt.boneBottom-.6-lenU, 0); tlBone.style.left=(x+12)+'px'; tlBone.style.top=y+'px'; }
-  { const [x,y] = proj(-4+3*shear+.8, 1.4, TR+.8); tlShear.style.left=(x+6)+'px'; tlShear.style.top=y+'px'; tlShear.style.display = shOn ? '' : 'none'; }
+  { const [x,y] = proj(0, lenD+1.6, 0); tlPress.style.left=(x+12)+'px'; tlPress.style.top=y+'px'; tlPress.style.display = bio.on?'none':''; }
+  { const [x,y] = proj(0, tBuilt.boneBottom-.6-lenU, 0); tlBone.style.left=(x+12)+'px'; tlBone.style.top=y+'px'; tlBone.style.display = bio.on?'none':''; }
+  { const [x,y] = proj(-4+3*shear+.8, 1.4, TR+.8); tlShear.style.left=(x+6)+'px'; tlShear.style.top=y+'px'; tlShear.style.display = shOn && !bio.on ? '' : 'none'; }
 
   // readouts
   const stKey = sm.stage; if (!big.hidden) updateBigInfo(tv);
