@@ -61,9 +61,10 @@ button{font:inherit;color:inherit}
 .glass{background:var(--glass);-webkit-backdrop-filter:blur(26px) saturate(1.6);backdrop-filter:blur(26px) saturate(1.6);border:1px solid var(--hair);box-shadow:inset 0 1px 0 var(--hi),var(--shadow);border-radius:var(--r-panel)}
 
 /* Brand / navigation */
-.brand{position:absolute;top:20px;left:20px;padding:16px 18px 14px;width:min(620px,calc(100vw - 440px));display:flex;flex-direction:column;gap:12px;z-index:3}
+.brand{position:absolute;top:20px;left:20px;padding:14px 16px 12px;width:min(620px,calc(100vw - 440px));display:flex;flex-direction:column;gap:10px;z-index:3}
+.brand .titlerow + div{margin-top:-4px}
 .brand h1{margin:0;font-size:22px;line-height:1.15;letter-spacing:-.015em;font-weight:650}
-.brand p{margin:0;color:var(--ink-2);font-size:13px;line-height:1.4;min-height:2.8em}
+.brand p{margin:0;color:var(--ink-2);font-size:13px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .brand .titlerow{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .brand .titlerow .chip{flex:none}
 .brand .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -149,19 +150,19 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .verdict .note{grid-column:1/-1;font-size:12px;color:var(--ink-3);margin:0}
 
 /* Transport */
-.transport{position:absolute;left:20px;right:416px;bottom:20px;padding:12px 14px;display:grid;grid-template-columns:auto auto 1fr auto;gap:14px;align-items:center;z-index:3}
+.transport{position:absolute;left:20px;right:416px;bottom:20px;padding:10px 14px;display:grid;grid-template-columns:auto auto 1fr auto;gap:12px;align-items:center;z-index:3}
 .play{width:44px;height:44px;border-radius:50%;border:0;background:var(--accent);color:#fff;display:grid;place-items:center;cursor:pointer;flex:none}
 .play svg{width:18px;height:18px}
-.clock{width:184px;flex:none;min-width:0}
+.clock{width:128px;flex:none;min-width:0}
 .clock b{display:block;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-.clock span{display:block;font-size:12px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.chartwrap{position:relative;height:112px;min-width:0}
+.clock span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;line-height:1.3;color:var(--ink-2);min-height:2.6em}
+.chartwrap{position:relative;height:84px;min-width:0}
 #chart{width:100%;height:100%;display:block;cursor:pointer;touch-action:none}
-.legend{display:flex;gap:12px;font-size:11px;color:var(--ink-2);position:absolute;top:-2px;left:0}
+.legend{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--ink-2);align-self:stretch;white-space:nowrap}
 .legend i{display:inline-block;width:14px;height:0;border-top:2px solid var(--ink);vertical-align:middle;margin-right:5px}
 .legend i.ghost{border-top:2px dashed var(--ink-3)}
 .speed{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
-.speed small{font-size:11px;color:var(--ink-3)}
+
 
 /* World labels */
 #labels{position:fixed;inset:0;pointer-events:none;z-index:2}
@@ -290,7 +291,7 @@ body.m-stages #readout, body.m-roi #readout{display:none}
 .key i{flex:none;width:22px;height:12px;border-radius:3px;margin-top:3px}
 .big .tissue .tl{font-size:13px}
 @media (max-width: 960px){ .big{padding:0} .big-body{grid-template-columns:1fr;grid-template-rows:1fr auto} .big-side{border-left:0;border-top:1px solid var(--hair);max-height:42vh} }
-@media (max-width: 1100px){ .brand{width:min(430px,calc(100vw - 420px))} .brand h1{font-size:19px} }
+@media (max-width: 1100px){ .brand h1{font-size:19px} }
 @media (max-width: 960px){
   body{overflow:auto;display:flex;flex-direction:column}
   #stage{order:1;flex:none}
@@ -312,7 +313,7 @@ body.m-stages #readout, body.m-roi #readout{display:none}
 </style>
 </head>
 <body>
-<div id="stage" aria-label="3D view of a patient on a hospital bed. Mattress cells are colored by interface pressure. Drag to orbit, scroll to zoom."></div>
+<div id="stage" aria-label="3D view of a patient on a hospital bed. Mattress cells are colored by interface pressure. Drag to orbit, right-drag to pan, scroll to zoom."></div>
 <div id="labels" aria-hidden="true"></div>
 <div class="toast glass" id="toast" role="status" aria-live="polite"></div>
 <div class="building glass" id="building" role="status"><span class="spin" aria-hidden="true"></span><span id="buildMsg">Building the patient model</span></div>
@@ -340,7 +341,7 @@ body.m-stages #readout, body.m-roi #readout{display:none}
           <li><i style="background:#c8a84e"></i>Slough on the wound floor</li>
           <li><i style="background:linear-gradient(90deg,#1d3a8c,#f2cc40,#bf1010)"></i>Strain view: low to high deformation</li>
         </ul>
-        <p class="stage-desc">Drag to turn the block. Scroll to zoom.</p>
+        <p class="stage-desc">Drag to turn the block, right-drag or Shift-drag to move it, scroll to zoom.</p>
       </aside>
     </div>
   </div>
@@ -352,7 +353,7 @@ body.m-stages #readout, body.m-roi #readout{display:none}
     <button type="button" class="chip" id="notesBtn" aria-haspopup="dialog">Background</button>
   </div>
   <div>
-    <p id="modeHint">Step through how hours of unrelieved weight on the sacrum turn into a wound.</p>
+    <p id="modeHint">Follow how hours of unrelieved pressure on the sacrum become a wound.</p>
   </div>
   <div class="row">
     <div class="seg" role="group" aria-label="View">
@@ -492,15 +493,14 @@ body.m-stages #readout, body.m-roi #readout{display:none}
 </aside>
 
 <footer class="transport glass" aria-label="Timeline">
-  <button type="button" class="play" id="play" aria-label="Play"><svg viewBox="0 0 20 20" aria-hidden="true"><path id="playIcon" d="M5 3.5v13l11-6.5z" fill="currentColor"/></svg></button>
+  <button type="button" class="play" id="play" aria-label="Play (Space)" title="Play or pause (Space)"><svg viewBox="0 0 20 20" aria-hidden="true"><path id="playIcon" d="M5 3.5v13l11-6.5z" fill="currentColor"/></svg></button>
   <div class="clock"><b id="clockT" class="num">Day 1, 20:00</b><span id="clockS">Admitted</span></div>
   <div class="chartwrap">
-    <div class="legend"><span><i></i>Sacral damage, this plan</span><span><i class="ghost"></i>Same care, no aids</span></div>
     <canvas id="chart" aria-label="Sacral tissue damage over 14 days. Click or drag to move through time."></canvas>
   </div>
   <div class="speed">
     <div class="seg" role="group" aria-label="Playback speed" id="speed"><button type="button" data-v="1" aria-pressed="false">1 h/s</button><button type="button" data-v="3" aria-pressed="true">3 h/s</button><button type="button" data-v="24" aria-pressed="false">1 day/s</button></div>
-    <small>Space plays or pauses</small>
+    <div class="legend"><span><i></i>Sacral damage, this plan</span><span><i class="ghost"></i>Same care, no aids</span></div>
   </div>
 </footer>
 
@@ -1382,20 +1382,41 @@ function stepCam(dt){
   camera.position.set(cam.target.x+cam.dist*sp*Math.sin(cam.az), cam.target.y+cam.dist*Math.cos(cam.pol), cam.target.z+cam.dist*sp*Math.cos(cam.az));
   camera.lookAt(cam.target);
 }
+// Orbit: left-drag. Pan: right-drag, Shift+drag, or two-finger drag. Zoom: wheel or pinch.
 function orbit(el, state, opt){
-  const pts = new Map(); let pinch = 0;
-  el.addEventListener('pointerdown', e=>{ el.setPointerCapture(e.pointerId); pts.set(e.pointerId,{x:e.clientX,y:e.clientY}); opt.onStart&&opt.onStart(); });
+  const pts = new Map(); let pinch = 0, mid = null, panning = false;
+  const panBy = (dx, dy)=>{
+    const cam3 = opt.camera; if (!cam3) return;
+    const k = state.dist * 2 * Math.tan(cam3.fov*Math.PI/360) / (el.clientHeight || 1) / (cam3.zoom || 1);
+    const right = new THREE.Vector3().setFromMatrixColumn(cam3.matrixWorld, 0);
+    const up = new THREE.Vector3().setFromMatrixColumn(cam3.matrixWorld, 1);
+    state.target.addScaledVector(right, -dx*k).addScaledVector(up, dy*k);
+  };
+  el.addEventListener('contextmenu', e=>e.preventDefault());
+  el.addEventListener('pointerdown', e=>{
+    el.setPointerCapture(e.pointerId); pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    panning = e.button===2 || e.shiftKey; if (pts.size===2){ const [a,b]=[...pts.values()]; mid = {x:(a.x+b.x)/2, y:(a.y+b.y)/2}; pinch = 0; }
+    opt.onStart&&opt.onStart();
+  });
   el.addEventListener('pointermove', e=>{
     if (!pts.has(e.pointerId)) return; const p = pts.get(e.pointerId);
-    if (pts.size===1){ state.az -= (e.clientX-p.x)*.006; state.pol = clamp(state.pol-(e.clientY-p.y)*.005, opt.minPol, opt.maxPol); }
+    const dx = e.clientX-p.x, dy = e.clientY-p.y;
+    if (pts.size===1){
+      if (panning) panBy(dx, dy);
+      else { state.az -= dx*.006; state.pol = clamp(state.pol-dy*.005, opt.minPol, opt.maxPol); }
+    }
     p.x=e.clientX; p.y=e.clientY;
-    if (pts.size===2){ const [a,b]=[...pts.values()]; const d=Math.hypot(a.x-b.x,a.y-b.y); if (pinch) state.dist = clamp(state.dist*pinch/d, opt.minD, opt.maxD); pinch=d; }
+    if (pts.size===2){
+      const [a,b]=[...pts.values()]; const d=Math.hypot(a.x-b.x,a.y-b.y);
+      if (pinch) state.dist = clamp(state.dist*pinch/d, opt.minD, opt.maxD); pinch=d;
+      const m = {x:(a.x+b.x)/2, y:(a.y+b.y)/2}; if (mid) panBy(m.x-mid.x, m.y-mid.y); mid = m;
+    }
   });
-  const up = e=>{ pts.delete(e.pointerId); pinch=0; };
+  const up = e=>{ pts.delete(e.pointerId); pinch=0; mid=null; if (!pts.size) panning=false; };
   el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
   el.addEventListener('wheel', e=>{ e.preventDefault(); state.dist = clamp(state.dist*Math.exp(e.deltaY*.0012), opt.minD, opt.maxD); opt.onStart&&opt.onStart(); }, {passive:false});
 }
-orbit(renderer.domElement, cam, {minPol:.2, maxPol:1.5, minD:.9, maxD:7, onStart:()=>{ goal=null; }});
+orbit(renderer.domElement, cam, {camera, minPol:.2, maxPol:1.5, minD:.9, maxD:7, onStart:()=>{ goal=null; }});
 
 // ---- world labels
 const labelsEl = $('#labels');
@@ -1420,7 +1441,7 @@ tr.setPixelRatio(Math.min(2, devicePixelRatio)); tr.outputColorSpace = THREE.SRG
 const ts = new THREE.Scene(); ts.environment = studioEnv(tr);
 const tcam = new THREE.PerspectiveCamera(30, 1, .5, 200);
 const tc = {target:V(-3.6,-4.4,2.6), dist:46, az:.62, pol:1.08};
-orbit(tCanvas, tc, {minPol:.25, maxPol:1.75, minD:22, maxD:70});
+orbit(tCanvas, tc, {camera:tcam, minPol:.25, maxPol:1.75, minD:22, maxD:70});
 const tkey = new THREE.DirectionalLight(0xffffff, 1.8); tkey.position.set(10, 18, 14); ts.add(tkey);
 ts.add(new THREE.HemisphereLight(0xffffff, 0x777777, 0.45));
 const TR = 9, LAYERS = [
@@ -1572,7 +1593,7 @@ function drawChart(){
   const dpr = Math.min(2, devicePixelRatio), w = chart.clientWidth, h = chart.clientHeight;
   if (!w || !R) return;
   chart.width = w*dpr; chart.height = h*dpr; cx.setTransform(dpr,0,0,dpr,0,0); cx.clearRect(0,0,w,h);
-  const top = 22, bot = h-16, right = w-46, X = m => m/TOTAL*right, Y = d => bot-(bot-top)*d;
+  const top = 8, bot = h-16, right = w-46, X = m => m/TOTAL*right, Y = d => bot-(bot-top)*d;
   const ink = css('--ink'), ink3 = css('--ink-3'), hair = css('--hair'), harm = css('--harm'), sig = css('--warn-fill'), go = css('--go');
   cx.font = '11px ' + css('--font'); cx.textBaseline='middle';
   let lastY = 1e9;
@@ -1643,10 +1664,10 @@ $('#hob').addEventListener('input', e=>{ S.hob=+e.target.value; $('#hobV').textC
 $('#comp').addEventListener('input', e=>{ S.compliance=+e.target.value/100; $('#compV').textContent=e.target.value+'%'; user={...S}; schedule(); });
 
 const MODE_HINT = {
-  story:'Step through how hours of unrelieved weight on the sacrum turn into a wound.',
-  stages:'Compare all six stages: what shows on the skin, what lies beneath, and what each costs.',
-  sim:'Try your own scenario: switch aids on or off, change the care plan or the patient, and watch the 14-day outcome.',
-  roi:'Estimate what a prevention program saves at your facility. Every number is editable.',
+  story:'Follow how hours of unrelieved pressure on the sacrum become a wound.',
+  stages:'See each stage on the skin, what lies beneath, and what it costs.',
+  sim:'Switch aids on or off, change the care plan or patient, and watch the outcome.',
+  roi:'Estimate what a prevention program saves. Every number is editable.',
 };
 function setMode(m){
   mode = m; document.body.className = 'm-'+m; $('#modeHint').textContent = MODE_HINT[m];
@@ -1872,7 +1893,15 @@ $$('[data-ntab]').forEach(b=>b.addEventListener('click',()=>{ const k=b.dataset.
 // ------------------------------------------------------------------ resize
 function resize(){
   const w = stageEl.clientWidth, h = stageEl.clientHeight; renderer.setSize(w,h,false); camera.aspect = w/h;
-  if (w > 960) camera.setViewOffset(w, h, 196, 0, w, h); else camera.clearViewOffset();
+  // Center the scene in the space left free by the floating panels, so the bed sits between them
+  if (w > 960){
+    const insp = $('.inspector').getBoundingClientRect(), br = $('.brand').getBoundingClientRect(), tp = $('.transport');
+    const freeL = 0, freeR = insp.left, freeT = br.bottom, freeB = (tp && tp.offsetParent) ? tp.getBoundingClientRect().top : h;
+    const cx = (freeL+freeR)/2, cy = freeT + (freeB-freeT)*0.56;
+    camera.setViewOffset(w, h, Math.round(w/2-cx), Math.round(h/2-cy), w, h);
+    // Fit: zoom out a little when the free area is smaller than on a typical laptop, so the whole bed stays in view
+    camera.zoom = Math.min(1, (freeR-freeL)/1000, (freeB-freeT)/600);
+  } else { camera.clearViewOffset(); camera.zoom = 1; }
   camera.updateProjectionMatrix();
   const tw = tCanvas.clientWidth, th = tCanvas.clientHeight; tr.setSize(tw, th, false); tcam.aspect = tw/th; tcam.updateProjectionMatrix();
   drawChart();
